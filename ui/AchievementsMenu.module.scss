@@ -1,0 +1,25 @@
+@import '../styles/globals.scss';
+
+.container {
+  @extend %menu-container;
+}
+
+.title {
+  @extend %menu-title;
+}
+
+.message {
+  font-size: $font-size-large;
+  color: $text-color;
+  margin-bottom: $spacing-lg;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.backButton {
+  @extend %button-secondary;
+  padding: $button-padding;
+  font-size: $font-size-large;
+  border-radius: $border-radius-md;
+}
+

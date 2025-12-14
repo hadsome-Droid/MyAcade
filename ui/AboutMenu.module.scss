@@ -1,0 +1,40 @@
+@import '../styles/globals.scss';
+
+.container {
+  @extend %menu-container;
+}
+
+.title {
+  @extend %menu-title;
+}
+
+.content {
+  font-size: 1.1rem;
+  color: $text-color;
+  margin-bottom: $spacing-lg;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  max-width: 600px;
+  line-height: 1.6;
+  
+  p {
+    margin: 0;
+    
+    strong {
+      color: $primary-color;
+    }
+  }
+  
+  .controls {
+    margin-top: $spacing-sm;
+    color: $primary-color;
+  }
+}
+
+.backButton {
+  @extend %button-secondary;
+  padding: $button-padding;
+  font-size: $font-size-large;
+  border-radius: $border-radius-md;
+}
+

@@ -1,0 +1,30 @@
+@import '../styles/globals.scss';
+
+.container {
+  @extend %menu-container;
+}
+
+.title {
+  font-size: $font-size-title;
+  color: $primary-color;
+  margin-bottom: $spacing-xl;
+  text-shadow: 0 0 20px $shadow-green-hover;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+}
+
+.buttonsContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.button {
+  @extend %button-primary;
+  padding: $button-padding;
+  font-size: $font-size-large;
+  border-radius: $border-radius-md;
+  margin: $spacing-xs 0;
+  width: $button-width;
+}
+

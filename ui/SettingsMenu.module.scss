@@ -1,0 +1,60 @@
+@import '../styles/globals.scss';
+
+.container {
+  @extend %menu-container;
+}
+
+.title {
+  @extend %menu-title;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.settingItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 400px;
+  padding: $spacing-sm;
+  margin: $spacing-xs 0;
+  background: rgba(0, 255, 0, 0.1);
+  border-radius: $border-radius-md;
+  border: 1px solid rgba(0, 255, 0, 0.3);
+}
+
+.label {
+  font-size: $font-size-large;
+  color: $text-color;
+  font-family: Arial, sans-serif;
+}
+
+.toggleButton {
+  @extend %button-base;
+  padding: 0.5rem 1.5rem;
+  font-size: $font-size-normal;
+  border-radius: 6px;
+  font-weight: bold;
+  
+  &.enabled {
+    background: $primary-color;
+    color: #000;
+  }
+  
+  &.disabled {
+    background: $button-gray;
+    color: $text-color;
+  }
+}
+
+.backButton {
+  @extend %button-secondary;
+  padding: $button-padding;
+  font-size: $font-size-large;
+  border-radius: $border-radius-md;
+  margin-top: $spacing-lg;
+}
+

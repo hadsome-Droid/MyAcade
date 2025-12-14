@@ -1,0 +1,25 @@
+@import '../styles/globals.scss';
+
+.shootControl {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 50%; // Занимает правую половину экрана
+  z-index: 999;
+  touch-action: none;
+  user-select: none;
+  pointer-events: auto;
+  // Визуальная индикация (опционально, можно сделать полупрозрачной)
+  // background: rgba(255, 0, 0, 0.05);
+
+  @media (min-width: 769px) {
+    display: none; // Скрываем на десктопе
+  }
+
+  &.active {
+    // Можно добавить визуальную индикацию при активном касании
+    // background: rgba(255, 0, 0, 0.1);
+  }
+}
+
