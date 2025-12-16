@@ -43,7 +43,7 @@ export class HealthBar {
     const currentWidth = this.barWidth * healthPercent;
     
     // Update HP bar color based on health
-    let barColor = GAME_CONFIG.HP_BAR.COLORS.HIGH; // Green
+    let barColor: number = GAME_CONFIG.HP_BAR.COLORS.HIGH; // Green
     if (healthPercent < GAME_CONFIG.HP_BAR.HEALTH_THRESHOLDS.LOW) {
       barColor = GAME_CONFIG.HP_BAR.COLORS.LOW; // Red
     } else if (healthPercent < GAME_CONFIG.HP_BAR.HEALTH_THRESHOLDS.MEDIUM) {

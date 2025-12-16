@@ -55,7 +55,7 @@ export const ENEMY_LEVEL_DISTRIBUTION: Record<number, Record<EnemyType, number>>
     [EnemyType.HEAVY]: 0.1,
   },
   // Level 3+
-  default: {
+  3: {
     [EnemyType.LIGHT]: 0.5,
     [EnemyType.MEDIUM]: 0.3,
     [EnemyType.HEAVY]: 0.2,

@@ -6,7 +6,7 @@ import { ENEMY_LEVEL_DISTRIBUTION } from '../constants/enemy.constants';
  */
 export function getEnemyTypeForLevel(level: number): EnemyType {
   const rand = Math.random();
-  const distribution = ENEMY_LEVEL_DISTRIBUTION[level] || ENEMY_LEVEL_DISTRIBUTION.default;
+  const distribution = ENEMY_LEVEL_DISTRIBUTION[level] || ENEMY_LEVEL_DISTRIBUTION[3];
   
   if (rand < distribution[EnemyType.LIGHT]) {
     return EnemyType.LIGHT;
