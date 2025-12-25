@@ -34,7 +34,7 @@ export class MovementSystem {
    * Apply movement to sprite
    */
   public static applyMovement(
-    sprite: PIXI.Graphics | PIXI.Sprite,
+    sprite: PIXI.Graphics,
     direction: Direction,
     speed: number,
     gameSpeed: number = 1
@@ -47,7 +47,7 @@ export class MovementSystem {
    * Move sprite with boundary constraints
    */
   public static moveWithBounds(
-    sprite: PIXI.Graphics | PIXI.Sprite,
+    sprite: PIXI.Graphics,
     direction: Direction,
     speed: number,
     app: PIXI.Application,
