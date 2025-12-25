@@ -1,5 +1,6 @@
 import * as PIXI from 'pixi.js';
 import { getScaledSize } from '../utils/scaling';
+import { HealthEntity } from '../entities/HealthEntity';
 
 export enum EnemyType {
   LIGHT = 'LIGHT',   // 1 HP
@@ -14,16 +15,27 @@ export enum SpawnSide {
   RIGHT = 'RIGHT',
 }
 
-export class Enemy {
-  public sprite: PIXI.Graphics;
-  private app: PIXI.Application;
-  private speed: number;
-  public isDestroyed: boolean = false;
+/**
+ * Класс врага, наследуется от HealthEntity
+ */
+export class Enemy extends HealthEntity {
   public enemyType: EnemyType;
-  public maxHealth: number;
-  public currentHealth: number;
   private directionX: number = 0;
   private directionY: number = 0;
+  private size: number;
+
+  /**
+   * Загружает текстуры для врагов
+   */
+  public static async loadTextures(): Promise<void> {
+    // Создаем простые текстуры для разных типов врагов программно
+    // В будущем можно загрузить из файлов через Assets.load
+    // Для программно созданных текстур не требуется загрузка через Assets
+    
+    // Текстуры будут создаваться динамически в методе init()
+    // Этот метод оставлен для совместимости с архитектурой
+    return Promise.resolve();
+  }
 
   constructor(
     app: PIXI.Application,
@@ -33,12 +45,13 @@ export class Enemy {
     targetX?: number,
     targetY?: number
   ) {
-    this.app = app;
-    this.speed = speed;
-    this.enemyType = enemyType || this.getRandomEnemyType();
-    this.maxHealth = this.getHealthForType(this.enemyType);
-    this.currentHealth = this.maxHealth;
-    this.sprite = new PIXI.Graphics();
+    const type = enemyType || Enemy.getRandomEnemyType();
+    const health = Enemy.getHealthForType(type);
+    
+    super(app, speed, health);
+    
+    this.enemyType = type;
+    this.size = this.getSizeForType(this.enemyType);
     
     // Initialize position and calculate direction
     this.init(spawnSide, targetX, targetY);
@@ -63,14 +76,14 @@ export class Enemy {
     }
   }
 
-  private getRandomEnemyType(): EnemyType {
+  private static getRandomEnemyType(): EnemyType {
     const rand = Math.random();
     if (rand < 0.7) return EnemyType.LIGHT;
     if (rand < 0.95) return EnemyType.MEDIUM;
     return EnemyType.HEAVY;
   }
 
-  private getHealthForType(type: EnemyType): number {
+  private static getHealthForType(type: EnemyType): number {
     switch (type) {
       case EnemyType.LIGHT:
         return 1;
@@ -125,30 +138,37 @@ export class Enemy {
   }
 
   private init(spawnSide: SpawnSide, targetX?: number, targetY?: number) {
-    const size = this.getSizeForType(this.enemyType);
     const color = this.getColorForType(this.enemyType);
     
-    // Создаем прямоугольник для врага
-    this.sprite.rect(0, 0, size, size);
-    this.sprite.fill(color);
+    // Создаем графику для врага
+    const graphics = new PIXI.Graphics();
+    graphics.rect(0, 0, this.size, this.size);
+    graphics.fill(color);
+    
+    // Создаем текстуру из графики
+    const texture = this.app.renderer.generateTexture(graphics);
+    this.sprite = new PIXI.Sprite(texture);
+    
+    // Настраиваем спрайт
+    this.sprite.anchor.set(0);
     
     // Position based on spawn side
     switch (spawnSide) {
       case SpawnSide.TOP:
-        this.sprite.x = Math.random() * (this.app.screen.width - size);
-        this.sprite.y = -size;
+        this.sprite.x = Math.random() * (this.app.screen.width - this.size);
+        this.sprite.y = -this.size;
         break;
       case SpawnSide.BOTTOM:
-        this.sprite.x = Math.random() * (this.app.screen.width - size);
-        this.sprite.y = this.app.screen.height + size;
+        this.sprite.x = Math.random() * (this.app.screen.width - this.size);
+        this.sprite.y = this.app.screen.height + this.size;
         break;
       case SpawnSide.LEFT:
-        this.sprite.x = -size;
-        this.sprite.y = Math.random() * (this.app.screen.height - size);
+        this.sprite.x = -this.size;
+        this.sprite.y = Math.random() * (this.app.screen.height - this.size);
         break;
       case SpawnSide.RIGHT:
-        this.sprite.x = this.app.screen.width + size;
-        this.sprite.y = Math.random() * (this.app.screen.height - size);
+        this.sprite.x = this.app.screen.width + this.size;
+        this.sprite.y = Math.random() * (this.app.screen.height - this.size);
         break;
     }
     
@@ -158,54 +178,57 @@ export class Enemy {
     this.calculateDirection(targetPosX, targetPosY);
     
     this.app.stage.addChild(this.sprite);
+    
+    // Очищаем временную графику
+    graphics.destroy();
   }
 
-  public takeDamage(damage: number = 1): boolean {
-    if (this.isDestroyed) return false;
-    
-    this.currentHealth -= damage;
-    
+  /**
+   * Реализация визуального эффекта при получении урона
+   */
+  protected onDamageEffect(): void {
     // Визуальная обратная связь - изменение прозрачности при уроне
-    const healthPercent = this.currentHealth / this.maxHealth;
+    const healthPercent = this.getHealthPercent();
     this.sprite.alpha = 0.5 + (healthPercent * 0.5); // От 0.5 до 1.0
-    
-    if (this.currentHealth <= 0) {
-      this.destroy();
-      return true; // Враг уничтожен
-    }
-    
-    return false; // Враг еще жив
   }
 
-  public update(gameSpeed: number = 1) {
+  public update(gameSpeed: number = 1): void {
     if (this.isDestroyed) return;
 
     // Move in direction vector
-    this.sprite.x += this.directionX * this.speed * gameSpeed;
-    this.sprite.y += this.directionY * this.speed * gameSpeed;
+    this.move(this.directionX, this.directionY, gameSpeed);
   }
 
   public isOutOfBounds(): boolean {
-    const size = this.getSizeForType(this.enemyType);
-    return (
-      this.sprite.x < -size ||
-      this.sprite.x > this.app.screen.width + size ||
-      this.sprite.y < -size ||
-      this.sprite.y > this.app.screen.height + size
-    );
+    return super.isOutOfBounds(this.size);
   }
 
-  public getBounds() {
-    return this.sprite.getBounds();
+  /**
+   * Проверка круговой коллизии с игроком (новый метод)
+   * @param playerX X координата игрока
+   * @param playerY Y координата игрока
+   * @param playerRadius Радиус игрока
+   * @returns true если враг столкнулся с игроком
+   */
+  public checkCircleCollision(playerX: number, playerY: number, playerRadius: number): boolean {
+    const dx = this.sprite.x - playerX;
+    const dy = this.sprite.y - playerY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const enemyRadius = this.size / 2;
+    return distance < (enemyRadius + playerRadius);
   }
 
-  public destroy() {
-    if (!this.isDestroyed) {
-      this.isDestroyed = true;
-      this.sprite.destroy();
-    }
+  /**
+   * Получает радиус врага для круговой коллизии
+   */
+  public getRadius(): number {
+    return this.size / 2;
   }
 
+  /**
+   * УСТАРЕВШИЙ: Проверка AABB коллизии с игроком (для обратной совместимости)
+   * Рекомендуется использовать checkCircleCollision
+   */
   public checkCollision(playerBounds: PIXI.Bounds): boolean {
     const enemyBounds = this.getBounds();
     return (

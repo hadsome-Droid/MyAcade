@@ -1,0 +1,39 @@
+{
+  "frames": {
+    "Run.png": {
+      "frame": {
+        "x": 1,
+        "y": 1,
+        "w": 470,
+        "h": 471
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 23,
+        "y": 24,
+        "w": 470,
+        "h": 471
+      },
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    }
+  },
+  "meta": {
+    "app": "http://free-tex-packer.com",
+    "version": "0.6.7",
+    "image": "run.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 472,
+      "h": 473
+    },
+    "scale": 1
+  }
+}

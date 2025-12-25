@@ -15,6 +15,7 @@ import { VirtualJoystick } from '../ui/VirtualJoystick';
 import { TouchShootControl } from '../ui/TouchShootControl';
 import { isMobileOrTablet, getScreenOrientation } from '../utils/deviceDetection';
 import { getScaledSize, getScaledSpeed } from '../utils/scaling';
+import { DebugGraphics } from './player/DebugGraphics';
 import styles from './Game.module.scss';
 
 export const Game = () => {
@@ -27,6 +28,7 @@ export const Game = () => {
   const enemySpawnTimerRef = useRef<number>(0);
   const lastDamageTimeRef = useRef<number>(0);
   const damageCooldown = 500; // 500ms cooldown between damage
+  const debugGraphicsRef = useRef<DebugGraphics | null>(null);
 
   const { isGameOver, isPaused, isInMenu, currentMenuScreen, setGameOver, reset, gameSpeed, addScore, score, weaponUpgrades, level, currentLevelScore, getPointsForNextLevel, showMenu } = useGameStore();
 
@@ -121,7 +123,7 @@ export const Game = () => {
 
       // Обновляем игрока с учетом улучшений
       if (playerRef.current) {
-        playerRef.current.update(currentState.weaponUpgrades);
+        playerRef.current.update(currentState.weaponUpgrades, 1/60);
       }
 
       // Спавн врагов (увеличиваем частоту - спавним чаще)
@@ -188,6 +190,18 @@ export const Game = () => {
 
         enemy.update(currentState.gameSpeed);
         
+        // Визуализация хитбокса врага в режиме отладки
+        // if (playerRef.current?.showDebug && debugGraphicsRef.current?.getVisible()) {
+        //   const enemyRadius = enemy.getRadius();
+        //   debugGraphicsRef.current.drawCircle(
+        //     enemy.sprite.x,
+        //     enemy.sprite.y,
+        //     enemyRadius,
+        //     0xff6600, // Оранжевый цвет для врагов
+        //     0.2
+        //   );
+        // }
+        
         // Remove enemies that go off-screen (no points awarded)
         if (enemy.isOutOfBounds() && !enemy.isDestroyed) {
           enemy.destroy();
@@ -195,10 +209,11 @@ export const Game = () => {
           return;
         }
         
-        // Проверка столкновения с игроком
+        // Проверка столкновения с игроком (используем круговую коллизию)
         if (playerRef.current && !enemy.isDestroyed) {
-          const playerBounds = playerRef.current.getBounds();
-          if (enemy.checkCollision(playerBounds)) {
+          // Новый метод: круговая коллизия
+          const playerCollisionData = playerRef.current.getCircleCollisionData();
+          if (enemy.checkCircleCollision(playerCollisionData.x, playerCollisionData.y, playerCollisionData.radius)) {
             const currentTime = Date.now();
             // Apply damage with cooldown to prevent rapid damage
             if (currentTime - lastDamageTimeRef.current >= damageCooldown) {
@@ -231,20 +246,41 @@ export const Game = () => {
       height: window.innerHeight,
       backgroundColor: 0x1a1a2e,
       antialias: true,
-    }).then(() => {
+    }).then(async () => {
       if (!containerRef.current) return;
       containerRef.current.appendChild(app.canvas as HTMLCanvasElement);
 
-      // Создаем игрока (размеры будут масштабированы внутри Player, если нужно)
-      playerRef.current = new Player(app);
-      
-      // Настраиваем callback для стрельбы
-      playerRef.current.setShootCallback((x, y, directionX, directionY, upgrades) => {
-        createBullet(x, y, directionX, directionY, upgrades);
-      });
+      // Загружаем текстуры для всех игровых сущностей перед созданием
+      try {
+        // Загружаем текстуры параллельно для ускорения
+        await Promise.all([
+          Player.loadTextures(),
+          Enemy.loadTextures(),
+          Bullet.loadTextures(),
+        ]);
+        
+        // Создаем игрока (размеры будут масштабированы внутри Player, если нужно)
+        playerRef.current = new Player(app);
 
-      // Запускаем игровой цикл
-      startGameLoop();
+        // Инициализируем глобальную дебаг-графику для врагов
+        // debugGraphicsRef.current = new DebugGraphics(app);
+
+        // Настраиваем callback для стрельбы
+        playerRef.current.setShootCallback((x, y, directionX, directionY, upgrades) => {
+          createBullet(x, y, directionX, directionY, upgrades);
+        });
+
+        // Запускаем игровой цикл
+        startGameLoop();
+      } catch (error) {
+        console.error('Ошибка загрузки текстур игровых сущностей:', error);
+        // Создаем игрока даже при ошибке загрузки (будет использован fallback)
+        playerRef.current = new Player(app);
+        playerRef.current.setShootCallback((x, y, directionX, directionY, upgrades) => {
+          createBullet(x, y, directionX, directionY, upgrades);
+        });
+        startGameLoop();
+      }
     });
 
     // Обработка изменения размера окна и ориентации
@@ -272,6 +308,19 @@ export const Game = () => {
       }
     };
 
+    // Обработчик клавиш для отладки
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === 'F3' || e.key === 'f3') {
+        if (playerRef.current) {
+          playerRef.current.toggleDebugMode();
+          // Синхронизируем видимость глобальной дебаг-графики
+          if (debugGraphicsRef.current) {
+            debugGraphicsRef.current.setVisible(playerRef.current.showDebug);
+          }
+        }
+      }
+    };
+
     const handleOrientationChange = () => {
       // Задержка для корректного определения размеров после поворота
       setTimeout(() => {
@@ -281,11 +330,13 @@ export const Game = () => {
 
     window.addEventListener('resize', handleResize);
     window.addEventListener('orientationchange', handleOrientationChange);
+    window.addEventListener('keydown', handleKeyPress);
 
     // Очистка
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('orientationchange', handleOrientationChange);
+      window.removeEventListener('keydown', handleKeyPress);
       if (gameLoopRef.current) {
         cancelAnimationFrame(gameLoopRef.current);
         gameLoopRef.current = null;
@@ -298,6 +349,10 @@ export const Game = () => {
       enemiesRef.current = [];
       bulletsRef.current.forEach((bullet) => bullet.destroy());
       bulletsRef.current = [];
+      if (debugGraphicsRef.current) {
+        debugGraphicsRef.current.destroy();
+        debugGraphicsRef.current = null;
+      }
       if (app && appRef.current) {
         try {
           // Проверяем, что приложение инициализировано перед уничтожением
@@ -480,7 +535,7 @@ export const Game = () => {
         <div className={styles.hudControls}>
           {isMobile 
             ? 'Управление: джойстик - движение, тап - стрельба'
-            : 'Управление: WASD/Стрелки - движение, ЛКМ - стрельба'
+            : 'Управление: WASD/Стрелки - движение, ЛКМ - стрельба | F3 - отладка'
           }
         </div>
         <div className={styles.hudUpgrades}>

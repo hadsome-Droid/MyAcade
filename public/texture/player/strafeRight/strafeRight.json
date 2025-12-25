@@ -1,0 +1,39 @@
+{
+  "frames": {
+    "StrafeRight.png": {
+      "frame": {
+        "x": 1,
+        "y": 1,
+        "w": 469,
+        "h": 471
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 23,
+        "y": 23,
+        "w": 469,
+        "h": 471
+      },
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    }
+  },
+  "meta": {
+    "app": "http://free-tex-packer.com",
+    "version": "0.6.7",
+    "image": "strafeRight.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 471,
+      "h": 473
+    },
+    "scale": 1
+  }
+}

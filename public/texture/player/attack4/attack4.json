@@ -1,0 +1,39 @@
+{
+  "frames": {
+    "Attack4.png": {
+      "frame": {
+        "x": 1,
+        "y": 1,
+        "w": 468,
+        "h": 475
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 22,
+        "y": 21,
+        "w": 468,
+        "h": 475
+      },
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    }
+  },
+  "meta": {
+    "app": "http://free-tex-packer.com",
+    "version": "0.6.7",
+    "image": "attack4.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 470,
+      "h": 477
+    },
+    "scale": 1
+  }
+}

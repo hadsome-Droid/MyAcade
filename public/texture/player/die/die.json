@@ -1,0 +1,39 @@
+{
+  "frames": {
+    "Die.png": {
+      "frame": {
+        "x": 1,
+        "y": 1,
+        "w": 481,
+        "h": 473
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 23,
+        "y": 21,
+        "w": 481,
+        "h": 473
+      },
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    }
+  },
+  "meta": {
+    "app": "http://free-tex-packer.com",
+    "version": "0.6.7",
+    "image": "die.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 483,
+      "h": 475
+    },
+    "scale": 1
+  }
+}

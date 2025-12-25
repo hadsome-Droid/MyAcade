@@ -1,0 +1,39 @@
+{
+  "frames": {
+    "Idle2.png": {
+      "frame": {
+        "x": 1,
+        "y": 1,
+        "w": 468,
+        "h": 469
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 22,
+        "y": 24,
+        "w": 468,
+        "h": 469
+      },
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    }
+  },
+  "meta": {
+    "app": "http://free-tex-packer.com",
+    "version": "0.6.7",
+    "image": "idle3.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 470,
+      "h": 471
+    },
+    "scale": 1
+  }
+}

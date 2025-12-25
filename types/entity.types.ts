@@ -7,7 +7,7 @@ export interface Healthable {
 }
 
 export interface Movable {
-  sprite: PIXI.Graphics;
+  sprite: PIXI.Graphics | PIXI.Sprite;
   update(gameSpeed?: number): void;
 }
 

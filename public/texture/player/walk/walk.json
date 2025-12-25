@@ -1,0 +1,39 @@
+{
+  "frames": {
+    "Walk.png": {
+      "frame": {
+        "x": 1,
+        "y": 1,
+        "w": 462,
+        "h": 473
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 26,
+        "y": 21,
+        "w": 462,
+        "h": 473
+      },
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    }
+  },
+  "meta": {
+    "app": "http://free-tex-packer.com",
+    "version": "0.6.7",
+    "image": "walk.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 464,
+      "h": 475
+    },
+    "scale": 1
+  }
+}

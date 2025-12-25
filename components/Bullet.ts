@@ -1,13 +1,24 @@
 import * as PIXI from 'pixi.js';
-import { getScaledSize } from '../utils/scaling';
+import { GameEntity } from '../entities/GameEntity';
 
-export class Bullet {
-  public sprite: PIXI.Graphics;
-  private app: PIXI.Application;
-  private speed: number;
-  public isDestroyed: boolean = false;
+/**
+ * Класс пули, наследуется от GameEntity
+ */
+export class Bullet extends GameEntity {
   private directionX: number;
   private directionY: number;
+  private size: number;
+
+  /**
+   * Загружает текстуры для пуль
+   */
+  public static async loadTextures(): Promise<void> {
+    // Создаем простую текстуру программно
+    // В будущем можно загрузить из файла через Assets.load
+    // Текстуры будут создаваться динамически в конструкторе
+    // Этот метод оставлен для совместимости с архитектурой
+    return Promise.resolve();
+  }
 
   constructor(
     app: PIXI.Application,
@@ -18,66 +29,44 @@ export class Bullet {
     speed: number = 8,
     size: number = 5
   ) {
-    this.app = app;
-    this.speed = speed;
+    super(app, speed);
     this.directionX = directionX;
     this.directionY = directionY;
-    this.sprite = new PIXI.Graphics();
-    this.init(x, y, size);
+    this.size = size;
+    
+    this.init(x, y);
   }
 
-  private init(x: number, y: number, size: number) {
-    // Создаем круг для пули
-    this.sprite.circle(0, 0, size);
-    this.sprite.fill(0xffff00); // Желтый цвет
+  private init(x: number, y: number) {
+    // Создаем графику для пули (временно, пока не загружены текстуры)
+    const graphics = new PIXI.Graphics();
+    graphics.circle(0, 0, this.size);
+    graphics.fill(0xffff00); // Желтый цвет
+    
+    // Создаем текстуру из графики
+    const texture = this.app.renderer.generateTexture(graphics);
+    this.sprite = new PIXI.Sprite(texture);
+    
+    // Настраиваем спрайт
+    this.sprite.anchor.set(0.5);
     this.sprite.x = x;
     this.sprite.y = y;
+    
     this.app.stage.addChild(this.sprite);
+    
+    // Очищаем временную графику
+    graphics.destroy();
   }
 
-  public update() {
+  public update(): void {
     if (this.isDestroyed || !this.sprite) return;
 
-    // Move in direction vector
-    this.sprite.x += this.directionX * this.speed;
-    this.sprite.y += this.directionY * this.speed;
+    // Движение пули
+    this.move(this.directionX, this.directionY);
 
     // Удаляем если вышли за пределы экрана
     if (this.isOutOfBounds()) {
       this.destroy();
-    }
-  }
-
-  public isOutOfBounds(): boolean {
-    if (this.isDestroyed || !this.sprite || this.sprite.y === null || this.sprite.y === undefined) {
-      return true;
-    }
-    const size = this.sprite.width || 5;
-    return (
-      this.sprite.x < -size ||
-      this.sprite.x > this.app.screen.width + size ||
-      this.sprite.y < -size ||
-      this.sprite.y > this.app.screen.height + size
-    );
-  }
-
-  public getBounds() {
-    if (this.isDestroyed || !this.sprite) {
-      // Возвращаем пустые границы если спрайт уничтожен
-      return {
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0,
-      } as PIXI.Bounds;
-    }
-    return this.sprite.getBounds();
-  }
-
-  public destroy() {
-    if (!this.isDestroyed) {
-      this.isDestroyed = true;
-      this.sprite.destroy();
     }
   }
 

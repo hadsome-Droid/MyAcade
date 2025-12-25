@@ -1,0 +1,39 @@
+{
+  "frames": {
+    "StrafeLeftAttack.png": {
+      "frame": {
+        "x": 1,
+        "y": 1,
+        "w": 482,
+        "h": 470
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 23,
+        "y": 24,
+        "w": 482,
+        "h": 470
+      },
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    }
+  },
+  "meta": {
+    "app": "http://free-tex-packer.com",
+    "version": "0.6.7",
+    "image": "strafeLeftAttack.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 484,
+      "h": 472
+    },
+    "scale": 1
+  }
+}
