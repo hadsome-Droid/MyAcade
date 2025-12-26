@@ -27,7 +27,7 @@ export const useGameEventHandlers = (
         }
         
         // Constrain player position within new bounds
-        if (playerRef.current && playerRef.current.sprite) {
+        if (playerRef.current) {
           const playerRadius = playerRef.current.getRadius();
           playerRef.current.sprite.x = Math.min(
             playerRef.current.sprite.x,

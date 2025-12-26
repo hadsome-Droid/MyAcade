@@ -59,7 +59,7 @@ export class Bullet extends GameEntity {
   }
 
   public update(): void {
-    if (this.isDestroyed || !this.sprite) return;
+    if (this.isDestroyed) return;
 
     // Движение пули
     this.move(this.directionX, this.directionY);
@@ -71,7 +71,7 @@ export class Bullet extends GameEntity {
   }
 
   public checkCollision(enemyBounds: PIXI.Bounds): boolean {
-    if (this.isDestroyed || !this.sprite) return false;
+    if (this.isDestroyed) return false;
     
     const bulletBounds = this.getBounds();
     return (

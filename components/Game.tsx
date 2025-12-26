@@ -48,29 +48,34 @@ export const Game = () => {
   const startGameLoopRef = useRef<(() => void) | null>(null);
   const createBulletRef = useRef<((x: number, y: number, dx: number, dy: number, upgrades: any) => void) | null>(null);
   
+  // Stable callbacks for Pixi initialization (prevent re-initialization on re-renders)
+  const handlePlayerCreated = useCallback((player: Player) => {
+    // Player created callback - setup player and start game
+    playerRef.current = player;
+    
+    // Set shoot callback
+    player.setShootCallback((x, y, directionX, directionY, upgrades) => {
+      if (createBulletRef.current) {
+        createBulletRef.current(x, y, directionX, directionY, upgrades);
+      }
+    });
+    
+    // Start game loop
+    if (startGameLoopRef.current) {
+      startGameLoopRef.current();
+    }
+  }, []); // Empty deps - uses refs which are stable
+  
+  const handleAppReady = useCallback(() => {
+    // App ready callback (optional)
+  }, []);
+  
   // Pixi.js initialization
   const appRef = usePixiApp(
     containerRef,
     isInMenu,
-    (player) => {
-      // Player created callback - setup player and start game
-      playerRef.current = player;
-      
-      // Set shoot callback
-      player.setShootCallback((x, y, directionX, directionY, upgrades) => {
-        if (createBulletRef.current) {
-          createBulletRef.current(x, y, directionX, directionY, upgrades);
-        }
-      });
-      
-      // Start game loop
-      if (startGameLoopRef.current) {
-        startGameLoopRef.current();
-      }
-    },
-    () => {
-      // App ready callback (optional)
-    }
+    handlePlayerCreated,
+    handleAppReady
   );
   
   // Entity management hooks (uses appRef from Pixi initialization)

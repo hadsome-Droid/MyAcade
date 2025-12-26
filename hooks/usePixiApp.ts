@@ -15,6 +15,14 @@ export const usePixiApp = (
   onAppReady: () => void
 ) => {
   const appRef = useRef<PIXI.Application | null>(null);
+  const onPlayerCreatedRef = useRef(onPlayerCreated);
+  const onAppReadyRef = useRef(onAppReady);
+  
+  // Update refs when callbacks change
+  useEffect(() => {
+    onPlayerCreatedRef.current = onPlayerCreated;
+    onAppReadyRef.current = onAppReady;
+  }, [onPlayerCreated, onAppReady]);
   
   useEffect(() => {
     if (!containerRef.current || isInMenu) return;
@@ -41,16 +49,16 @@ export const usePixiApp = (
         
         // Create player
         const player = new Player(app);
-        onPlayerCreated(player);
+        onPlayerCreatedRef.current(player);
         
         // Notify that app is ready
-        onAppReady();
+        onAppReadyRef.current();
       } catch (error) {
         console.error('Texture loading error:', error);
         // Fallback: create player even if textures fail to load
         const player = new Player(app);
-        onPlayerCreated(player);
-        onAppReady();
+        onPlayerCreatedRef.current(player);
+        onAppReadyRef.current();
       }
     });
     
@@ -67,7 +75,7 @@ export const usePixiApp = (
         appRef.current = null;
       }
     };
-  }, [containerRef, isInMenu, onPlayerCreated, onAppReady]);
+  }, [containerRef, isInMenu]); // Removed callback deps - using refs instead
   
   return appRef;
 };

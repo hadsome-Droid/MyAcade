@@ -93,11 +93,13 @@ export const useGameLoop = (
         }
       }
       
-      // Update enemies
-      enemiesRef.current!.forEach((enemy, index) => {
+      // Update enemies (обратный цикл для безопасного удаления)
+      for (let enemyIndex = enemiesRef.current!.length - 1; enemyIndex >= 0; enemyIndex--) {
+        const enemy = enemiesRef.current![enemyIndex];
+        
         if (enemy.isDestroyed) {
-          enemiesRef.current!.splice(index, 1);
-          return;
+          enemiesRef.current!.splice(enemyIndex, 1);
+          continue;
         }
         
         enemy.update(currentState.gameSpeed);
@@ -105,8 +107,8 @@ export const useGameLoop = (
         // Remove enemies that go off-screen (no points awarded)
         if (enemy.isOutOfBounds() && !enemy.isDestroyed) {
           enemy.destroy();
-          enemiesRef.current!.splice(index, 1);
-          return;
+          enemiesRef.current!.splice(enemyIndex, 1);
+          continue;
         }
         
         // Check player-enemy collision (circular collision)
@@ -125,7 +127,7 @@ export const useGameLoop = (
             }
           }
         }
-      });
+      }
       
       gameLoopRef.current = requestAnimationFrame(gameLoop);
     };

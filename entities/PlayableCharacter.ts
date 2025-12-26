@@ -377,8 +377,6 @@ export abstract class PlayableCharacter extends HealthEntity {
      * Обработка движения персонажа с учетом границ
      */
     protected handleMovement(movement: { x: number; y: number }): void {
-        if (!this.sprite) return;
-        
         const newX = this.sprite.x + movement.x * this.speed;
         const newY = this.sprite.y + movement.y * this.speed;
 
@@ -460,9 +458,11 @@ export abstract class PlayableCharacter extends HealthEntity {
     }
 
     protected onDamageEffect(): void {
+        if (this.sprite.destroyed) return;
+        
         this.spriteManager.setTint(0xff0000);
         setTimeout(() => {
-            if (this.sprite) {
+            if (this.sprite && !this.sprite.destroyed) {
                 this.spriteManager.setTint(0xffffff);
             }
         }, 100);

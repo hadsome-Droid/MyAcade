@@ -5,7 +5,7 @@ import * as PIXI from 'pixi.js';
  * Содержит общую логику для спрайтов, движения, проверки границ и уничтожения
  */
 export abstract class GameEntity {
-  public sprite: PIXI.Sprite | null = null;
+  public sprite!: PIXI.Sprite;
   protected app: PIXI.Application;
   protected speed: number;
   public isDestroyed: boolean = false;
@@ -13,7 +13,7 @@ export abstract class GameEntity {
   constructor(app: PIXI.Application, speed: number = 1) {
     this.app = app;
     this.speed = speed;
-    // Sprite will be initialized in child class
+    // Sprite MUST be initialized in child class constructor
   }
 
   /**
@@ -26,7 +26,7 @@ export abstract class GameEntity {
    * Получает границы спрайта для проверки столкновений
    */
   public getBounds(): PIXI.Bounds {
-    if (this.isDestroyed || !this.sprite) {
+    if (this.isDestroyed || this.sprite.destroyed) {
       return {
         x: 0,
         y: 0,
@@ -41,20 +41,29 @@ export abstract class GameEntity {
    * Уничтожает сущность и освобождает ресурсы
    */
   public destroy(): void {
-    if (!this.isDestroyed && this.sprite) {
-      this.isDestroyed = true;
-      this.sprite.destroy();
-      this.sprite = null; // Prevent access to destroyed sprite
+    if (this.isDestroyed) return;
+    
+    this.isDestroyed = true;
+    
+    // Удаляем спрайт со сцены перед уничтожением
+    if (this.sprite.parent) {
+      this.sprite.parent.removeChild(this.sprite);
     }
+    
+    // Уничтожаем спрайт с опциями (не уничтожаем базовую текстуру для переиспользования)
+    this.sprite.destroy({
+      children: false,
+      texture: false,
+      textureSource: false
+    });
   }
 
   /**
    * Проверяет, вышла ли сущность за пределы экрана
    */
   public isOutOfBounds(margin: number = 0): boolean {
-    if (this.isDestroyed || !this.sprite || this.sprite.x === null || this.sprite.x === undefined) {
-      return true;
-    }
+    if (this.isDestroyed || this.sprite.destroyed) return true;
+    
     const size = Math.max(this.sprite.width, this.sprite.height) || margin || 5;
     return (
       this.sprite.x < -size - margin ||
@@ -68,7 +77,10 @@ export abstract class GameEntity {
    * Базовый метод для движения сущности в заданном направлении
    */
   protected move(directionX: number, directionY: number, speedMultiplier: number = 1): void {
-    if (this.isDestroyed || !this.sprite || this.sprite.x === null || this.sprite.x === undefined) return;
+    if (this.isDestroyed) return;
+    
+    // Дополнительная защита: проверяем, что спрайт не был уничтожен PIXI.js
+    if (this.sprite.destroyed) return;
     
     this.sprite.x += directionX * this.speed * speedMultiplier;
     this.sprite.y += directionY * this.speed * speedMultiplier;
@@ -78,7 +90,7 @@ export abstract class GameEntity {
    * Получает текущую позицию сущности
    */
   public getPosition(): { x: number; y: number } {
-    if (!this.sprite) {
+    if (this.isDestroyed || this.sprite.destroyed) {
       return { x: 0, y: 0 };
     }
     return {
@@ -91,10 +103,10 @@ export abstract class GameEntity {
    * Устанавливает позицию сущности
    */
   public setPosition(x: number, y: number): void {
-    if (this.sprite) {
-      this.sprite.x = x;
-      this.sprite.y = y;
-    }
+    if (this.isDestroyed || this.sprite.destroyed) return;
+    
+    this.sprite.x = x;
+    this.sprite.y = y;
   }
 
   /**

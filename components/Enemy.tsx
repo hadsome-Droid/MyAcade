@@ -58,8 +58,6 @@ export class Enemy extends HealthEntity {
   }
 
   private calculateDirection(targetX: number, targetY: number) {
-    if (!this.sprite) return;
-    
     const startX = this.sprite.x;
     const startY = this.sprite.y;
     
@@ -189,7 +187,7 @@ export class Enemy extends HealthEntity {
    * Реализация визуального эффекта при получении урона
    */
   protected onDamageEffect(): void {
-    if (!this.sprite) return;
+    if (this.sprite.destroyed) return;
     
     // Визуальная обратная связь - изменение прозрачности при уроне
     const healthPercent = this.getHealthPercent();
@@ -215,8 +213,6 @@ export class Enemy extends HealthEntity {
    * @returns true если враг столкнулся с игроком
    */
   public checkCircleCollision(playerX: number, playerY: number, playerRadius: number): boolean {
-    if (!this.sprite) return false;
-    
     const dx = this.sprite.x - playerX;
     const dy = this.sprite.y - playerY;
     const distance = Math.sqrt(dx * dx + dy * dy);
