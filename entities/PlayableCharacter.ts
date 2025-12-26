@@ -377,6 +377,8 @@ export abstract class PlayableCharacter extends HealthEntity {
      * Обработка движения персонажа с учетом границ
      */
     protected handleMovement(movement: { x: number; y: number }): void {
+        if (!this.sprite) return;
+        
         const newX = this.sprite.x + movement.x * this.speed;
         const newY = this.sprite.y + movement.y * this.speed;
 
@@ -401,7 +403,9 @@ export abstract class PlayableCharacter extends HealthEntity {
         this.updateAnimation(movement, isShooting);
 
         // Обновляем позицию HP бара
-        this.healthBar.setPosition(this.sprite.x, this.sprite.y);
+        if (this.sprite) {
+            this.healthBar.setPosition(this.sprite.x, this.sprite.y);
+        }
 
         // Обработка стрельбы
         if (isShooting && this.weapon.canShoot(upgrades)) {
