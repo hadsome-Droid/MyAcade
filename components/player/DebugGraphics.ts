@@ -90,8 +90,10 @@ export class DebugGraphics {
         const label = new PIXI.Text(text, {
             fontSize: 12,
             fill: color,
-            stroke: 0x000000,
-            strokeThickness: 2,
+            stroke: {
+                color: 0x000000,
+                width: 2
+            },
         });
         label.x = x;
         label.y = y;
