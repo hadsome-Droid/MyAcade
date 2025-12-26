@@ -5,7 +5,7 @@ import * as PIXI from 'pixi.js';
  * Содержит общую логику для спрайтов, движения, проверки границ и уничтожения
  */
 export abstract class GameEntity {
-  public sprite!: PIXI.Sprite;
+  public sprite: PIXI.Sprite | null = null;
   protected app: PIXI.Application;
   protected speed: number;
   public isDestroyed: boolean = false;
@@ -44,7 +44,7 @@ export abstract class GameEntity {
     if (!this.isDestroyed && this.sprite) {
       this.isDestroyed = true;
       this.sprite.destroy();
-      (this.sprite as any) = null; // Prevent access to destroyed sprite
+      this.sprite = null; // Prevent access to destroyed sprite
     }
   }
 
@@ -68,7 +68,7 @@ export abstract class GameEntity {
    * Базовый метод для движения сущности в заданном направлении
    */
   protected move(directionX: number, directionY: number, speedMultiplier: number = 1): void {
-    if (this.isDestroyed || !this.sprite) return;
+    if (this.isDestroyed || !this.sprite || this.sprite.x === null || this.sprite.x === undefined) return;
     
     this.sprite.x += directionX * this.speed * speedMultiplier;
     this.sprite.y += directionY * this.speed * speedMultiplier;
@@ -78,6 +78,9 @@ export abstract class GameEntity {
    * Получает текущую позицию сущности
    */
   public getPosition(): { x: number; y: number } {
+    if (!this.sprite) {
+      return { x: 0, y: 0 };
+    }
     return {
       x: this.sprite.x,
       y: this.sprite.y,
