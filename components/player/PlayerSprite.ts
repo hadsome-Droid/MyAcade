@@ -141,7 +141,10 @@ export class PlayerSprite {
     /**
      * Получает спрайт
      */
-    public getSprite(): PIXI.Sprite | null {
+    public getSprite(): PIXI.Sprite {
+        if (!this.sprite) {
+            throw new Error('PlayerSprite: Cannot get sprite - sprite is null');
+        }
         return this.sprite;
     }
 
