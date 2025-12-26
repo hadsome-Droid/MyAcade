@@ -79,6 +79,10 @@ export abstract class PlayableCharacter extends HealthEntity {
 
         // Получаем спрайт от менеджера
         this.sprite = this.spriteManager.getSprite();
+        
+        if (!this.sprite) {
+            throw new Error('Failed to initialize sprite in PlayableCharacter');
+        }
 
         // Инициализируем аниматор
         this.animator = new PlayerAnimator(this.sprite);

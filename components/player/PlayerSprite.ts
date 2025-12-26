@@ -4,7 +4,7 @@ import * as PIXI from 'pixi.js';
  * Компонент управления спрайтом игрока
  */
 export class PlayerSprite {
-    private sprite: PIXI.Sprite;
+    private sprite: PIXI.Sprite | null = null;
     private app: PIXI.Application;
     private baseScale: number;
     private radius: number;
@@ -78,16 +78,25 @@ export class PlayerSprite {
 
         if (texture && texture.width > 0 && texture.height > 0) {
             this.sprite = new PIXI.Sprite(texture);
+            console.log('PlayerSprite: Created sprite with texture from', assetKey);
         } else {
             // Fallback: создаем простой спрайт
-            console.warn('Текстура игрока не найдена, используется fallback');
+            console.warn('PlayerSprite: Текстура игрока не найдена для', assetKey, '- используется fallback');
             this.sprite = new PIXI.Sprite(PIXI.Texture.EMPTY);
         }
+        
+        if (!this.sprite) {
+            throw new Error('Failed to create sprite in PlayerSprite constructor');
+        }
+        
+        console.log('PlayerSprite: Sprite initialized successfully', this.sprite);
 
         this.init();
     }
 
     private init(): void {
+        if (!this.sprite) return;
+        
         // Центрируем спрайт
         this.sprite.anchor.set(0.5);
 
@@ -103,6 +112,8 @@ export class PlayerSprite {
     }
 
     private applyScale(): void {
+        if (!this.sprite) return;
+        
         // Масштабируем спрайт в соответствии с радиусом и baseScale
         const targetSize = this.radius * 2;
         console.log(this.sprite.texture, this.sprite.width, this.sprite.height);
@@ -130,7 +141,7 @@ export class PlayerSprite {
     /**
      * Получает спрайт
      */
-    public getSprite(): PIXI.Sprite {
+    public getSprite(): PIXI.Sprite | null {
         return this.sprite;
     }
 
@@ -138,6 +149,10 @@ export class PlayerSprite {
      * Получает позицию спрайта
      */
     public getPosition(): { x: number; y: number } {
+        if (!this.sprite) {
+            console.warn('PlayerSprite: sprite is null, returning default position');
+            return { x: 0, y: 0 };
+        }
         return {
             x: this.sprite.x,
             y: this.sprite.y,
@@ -148,7 +163,9 @@ export class PlayerSprite {
      * Устанавливает tint (цветовой оттенок) спрайта
      */
     public setTint(color: number): void {
-        this.sprite.tint = color;
+        if (this.sprite) {
+            this.sprite.tint = color;
+        }
     }
 
     /**
@@ -160,6 +177,7 @@ export class PlayerSprite {
                 this.sprite.parent.removeChild(this.sprite);
             }
             this.sprite.destroy();
+            this.sprite = null;
         }
     }
 }
