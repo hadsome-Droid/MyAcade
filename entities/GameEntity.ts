@@ -5,7 +5,7 @@ import * as PIXI from 'pixi.js';
  * Содержит общую логику для спрайтов, движения, проверки границ и уничтожения
  */
 export abstract class GameEntity {
-  public sprite: PIXI.Sprite;
+  public sprite!: PIXI.Sprite;
   protected app: PIXI.Application;
   protected speed: number;
   public isDestroyed: boolean = false;
@@ -13,7 +13,7 @@ export abstract class GameEntity {
   constructor(app: PIXI.Application, speed: number = 1) {
     this.app = app;
     this.speed = speed;
-    this.sprite = new PIXI.Sprite();
+    // Sprite will be initialized in child class
   }
 
   /**
@@ -44,6 +44,7 @@ export abstract class GameEntity {
     if (!this.isDestroyed && this.sprite) {
       this.isDestroyed = true;
       this.sprite.destroy();
+      (this.sprite as any) = null; // Prevent access to destroyed sprite
     }
   }
 
