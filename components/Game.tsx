@@ -25,7 +25,6 @@ import { MobileControls } from './game/MobileControls';
 export const Game = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<Player | null>(null);
-  const isGameInitialized = useRef(false);
   
   // Game store
   const {
@@ -45,30 +44,19 @@ export const Game = () => {
   // Mobile detection
   const { isMobile, orientation } = useMobileDetection();
   
-  // Pixi.js initialization
-  const appRef = usePixiApp(
-    containerRef,
-    isInMenu,
-    (player) => {
-      // Player created callback - just store the player reference
-      playerRef.current = player;
-      isGameInitialized.current = true;
-    },
-    () => {
-      // App ready callback (optional)
-    }
-  );
+  // Create app ref that will be populated by usePixiApp
+  const appRefForHooks = useRef<any>(null);
   
-  // Entity management (uses appRef from Pixi initialization)
+  // Entity management hooks
   const {
     enemiesRef,
     bulletsRef,
     spawnEnemy,
     createBullet,
     clearEntities
-  } = useEntityManagement(appRef, playerRef);
+  } = useEntityManagement(appRefForHooks, playerRef);
   
-  // Game loop
+  // Game loop hooks
   const { startGameLoop, stopGameLoop } = useGameLoop(
     playerRef,
     enemiesRef,
@@ -77,21 +65,31 @@ export const Game = () => {
     addScore
   );
   
-  // Setup player callbacks after initialization
-  useEffect(() => {
-    if (isGameInitialized.current && playerRef.current && !isInMenu) {
+  // Pixi.js initialization - this will populate appRefForHooks
+  const appRef = usePixiApp(
+    containerRef,
+    isInMenu,
+    (player) => {
+      // Player created callback - setup player and start game
+      playerRef.current = player;
+      
       // Set shoot callback
-      playerRef.current.setShootCallback((x, y, directionX, directionY, upgrades) => {
+      player.setShootCallback((x, y, directionX, directionY, upgrades) => {
         createBullet(x, y, directionX, directionY, upgrades);
       });
       
       // Start game loop
       startGameLoop();
-      
-      // Reset flag
-      isGameInitialized.current = false;
+    },
+    () => {
+      // App ready callback (optional)
     }
-  }, [playerRef.current, createBullet, startGameLoop, isInMenu]);
+  );
+  
+  // Sync the app ref after render
+  useEffect(() => {
+    appRefForHooks.current = appRef.current;
+  }, [appRef]);
   
   // Event handlers (resize, keyboard, orientation)
   useGameEventHandlers(appRef, playerRef);
